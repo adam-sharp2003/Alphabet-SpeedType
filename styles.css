@@ -74,7 +74,7 @@ th {
 }
 
 #download-button,
-#upload-input {
+#upload-button {
 	background-color: #ff5722;
 	border: 0;
 	padding: 7px 7px;
@@ -88,6 +88,6 @@ th {
 }
 
 #download-button:hover,
-#upload-input:hover {
+#upload-button:hover {
 	background-color: #ff7043;
 }

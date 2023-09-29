@@ -53,38 +53,35 @@ document.getElementById("reset-button").addEventListener("click", function () {
 	currentIndex = 0
 });
 
+document.getElementById("download-button").addEventListener("click", function() {
+	const url = URL.createObjectURL(new Blob([JSON.stringify(bestTimesArray)], {type: "application/json"}));
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = "bestTimes.json";
+	a.click();
+	URL.revokeObjectURL(url);
+});
+
+document.getElementById("upload-input").addEventListener("change", function() {
+	if (window.confirm("This will erase all previously saved times, are you sure?")) {
+		const reader = new FileReader();
+		reader.onload = function () {
+			const uploadedData = JSON.parse(reader.result);
+			if (Array.isArray(uploadedData)) localStorage.setItem("bestTimesArray", JSON.stringify(uploadedData));
+			else alert("Invalid JSON file. Please select a valid JSON file.");
+			location.reload();
+		}
+		reader.readAsText(event.target.files[0]);
+	}
+});
+
+document.getElementById("upload-button").addEventListener("click", function () {
+	document.getElementById("upload-input").click();
+});
+
 window.onload = () => {
 	input.onpaste = e => e.preventDefault();
 }
 
 if (bestTimesArray.length > 0) bestTimeDisplay.textContent = calculateTotal(bestTimesArray[0])
 displayLetterTimes()
-
-function downloadBestTimes() {
-	const url = URL.createObjectURL(new Blob([JSON.stringify(bestTimesArray)], { type: "application/json" }));
-	const a = document.createElement("a");
-	a.href = url;
-	a.download = "bestTimes.json";
-	a.click();
-	URL.revokeObjectURL(url);
-}
-
-function uploadBestTimes(event) {
-	if (window.confirm("This will erase all previously saved times, are you sure?")) {
-		const reader = new FileReader();
-		reader.onload = function () {
-			const uploadedData = JSON.parse(reader.result);
-			if (Array.isArray(uploadedData)) {
-				bestTimesArray = uploadedData;
-				localStorage.setItem("bestTimesArray", JSON.stringify(bestTimesArray));
-				displayLetterTimes();
-			} else {
-				alert("Invalid JSON file. Please select a valid JSON file.");
-			}
-		};
-		reader.readAsText(event.target.files[0]);
-	}
-}
-
-document.getElementById("download-button").addEventListener("click", downloadBestTimes);
-document.getElementById("upload-input").addEventListener("change", uploadBestTimes);
