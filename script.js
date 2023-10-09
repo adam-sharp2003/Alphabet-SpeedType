@@ -22,6 +22,7 @@ input.addEventListener("input", function (event) {
 		clearInterval(timerInterval);
 		timeDisplay.textContent = ((Date.now() - startTime) / 1000).toFixed(2);	
 		bestTimesArray.push(letterTimes)
+		bestTimesArray = bestTimesArray.filter((a, i) => !bestTimesArray.some((b, k) => i != k && Object.keys(a).every(key => parseFloat(a[key]) >= parseFloat(b[key]))))
 		localStorage.setItem("bestTimesArray", JSON.stringify(bestTimesArray.sort((a, b) => calculateTotal(a) - calculateTotal(b))));
 		displayLetterTimes();
 		bestTimeDisplay.textContent = calculateTotal(bestTimesArray[0])
