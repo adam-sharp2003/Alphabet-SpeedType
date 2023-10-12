@@ -20,7 +20,7 @@ input.addEventListener("input", function (event) {
 	if (input.value === expectedText) {
 		input.disabled = true
 		clearInterval(timerInterval);
-		timeDisplay.textContent = ((Date.now() - startTime) / 1000).toFixed(2);	
+		timeDisplay.textContent = ((Date.now() - startTime) / 1000).toFixed(2);
 		bestTimesArray.push(letterTimes)
 		bestTimesArray = bestTimesArray.filter((a, i) => !bestTimesArray.some((b, k) => i != k && Object.keys(a).every(key => parseFloat(a[key]) >= parseFloat(b[key]))))
 		localStorage.setItem("bestTimesArray", JSON.stringify(bestTimesArray.sort((a, b) => calculateTotal(a) - calculateTotal(b))));
@@ -34,44 +34,35 @@ function displayLetterTimes() {
 	while (lettersTable.firstChild) lettersTable.removeChild(lettersTable.firstChild);
 	var bestTimes = bestTimesArray.reduce((result, obj) => Object.assign(result, ...Object.keys(obj).map(key => ({[key]: Math.min(result[key] || Infinity, parseFloat(obj[key]))}))),{});
 	lettersTable.innerHTML += `<tr><th>Letters</th><th>Times (s)</th><th>Best Possible Times (s)</th></tr>
-	${Object.keys(Object.fromEntries(Object.entries(letterTimes).sort())).map(letter => `<tr>
+	${Object.entries(letterTimes).sort().map(([letter, time]) => `<tr>
 		<td>${letter}</td>
-		<td style="background-color: rgb(${77*(letterTimes[letter]/Math.max(...Object.values(letterTimes)))+34},34,34)">${letterTimes[letter]+(letterTimes[letter]==bestTimes[letter]?'*':'')}</td>
+		<td style="background-color: rgb(${77*(time/Math.max(...Object.values(letterTimes)))+34},34,34)">${time+(time==bestTimes[letter]?'*':'')}</td>
 		<td style="background-color: rgb(${77*(bestTimes[letter]/Math.max(...Object.values(bestTimes)))+34},34,34)">${bestTimes[letter]}</td>
 	</tr>`).join('')}
 	<tr><th>Total</th><th>${calculateTotal(letterTimes)}</th><th>${calculateTotal(bestTimes)}</th></tr>`;
 }
 
 document.getElementById("reset-button").addEventListener("click", function () {
-	input.value = "";
-	input.disabled = false;
+	input.value = "", input.disabled = false, timeDisplay.textContent = "0.00", letterTimes = {}, previousTime = 0, currentIndex = 0, startTime = null
 	input.focus();
 	clearInterval(timerInterval);
-	startTime = null;
-	timeDisplay.textContent = "0.00";
-	letterTimes = {};
-	previousTime = 0;
-	currentIndex = 0
 });
 
-document.getElementById("download-button").addEventListener("click", function() {
+document.getElementById("download-button").addEventListener("click", () => {
 	const url = URL.createObjectURL(new Blob([JSON.stringify(bestTimesArray)], {type: "application/json"}));
-	const a = document.createElement("a");
-	a.href = url;
-	a.download = "bestTimes.json";
-	a.click();
+	Object.assign(document.createElement("a"), { href: url, download: "bestTimes.json" }).click();
 	URL.revokeObjectURL(url);
 });
-
-document.getElementById("upload-input").addEventListener("change", function() {
+	
+document.getElementById("upload-input").addEventListener("change", () => {
 	if (window.confirm("This will erase all previously saved times, are you sure?")) {
 		const reader = new FileReader();
-		reader.onload = function () {
+		reader.onload = () => {
 			const uploadedData = JSON.parse(reader.result);
 			if (Array.isArray(uploadedData)) localStorage.setItem("bestTimesArray", JSON.stringify(uploadedData));
 			else alert("Invalid JSON file. Please select a valid JSON file.");
 			location.reload();
-		}
+		};
 		reader.readAsText(event.target.files[0]);
 	}
 });
